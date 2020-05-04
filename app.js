@@ -1,4 +1,7 @@
 const path=require('path');
+const https=require('https');
+const MONGODB_URI='mongodb+srv://uditsingh294:5511@restapp-raulb.mongodb.net/test?retryWrites=true&w=majority';
+
 const fs=require('fs');
 const express=require('express');
 const app=express();
@@ -10,7 +13,6 @@ const multer=require('multer');
 const helmet=require('helmet');
 const compression=require('compression');
 const morgan=require('morgan');
-
 
 
 const fileStorage=multer.diskStorage({
@@ -63,9 +65,9 @@ app.use((error,req,res,next)=>{
      res.status(status).json({message:message,data:data});
 });
 
-mongoose.connect('mongodb+srv://uditsingh294:5511@restapp-raulb.mongodb.net/test?retryWrites=true&w=majority')
+mongoose.connect(MONGODB_URI)
 .then(result => {
-     const server = app.listen(8080);
+     const server = app.listen(process.env.PORT || 8080 );
      const io = require('./socket').init(server);
      io.on('connection', socket => {
      });
