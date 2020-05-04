@@ -1,6 +1,6 @@
 const path=require('path');
 const https=require('https');
-const MONGODB_URI='mongodb+srv://uditsingh294:5511@restapp-raulb.mongodb.net/test?retryWrites=true&w=majority';
+const MONGODB_URI='mongodb+srv://user_name:pass_word@restapp-raulb.mongodb.net/test?retryWrites=true&w=majority';
 
 const fs=require('fs');
 const express=require('express');
