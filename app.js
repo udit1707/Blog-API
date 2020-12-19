@@ -1,6 +1,7 @@
 const path=require('path');
 const https=require('https');
-const MONGODB_URI='mongodb+srv://user_name:pass_word@restapp-raulb.mongodb.net/test?retryWrites=true&w=majority';
+require('dotenv').config();
+const MONGODB_URI=process.env.MONGODB_URI;
 
 const fs=require('fs');
 const express=require('express');
@@ -17,10 +18,23 @@ const morgan=require('morgan');
 
 const fileStorage=multer.diskStorage({
      destination:(req,file,cb)=>{
-          cb(null,'images');
+          console.log("AAAA");
+          fs.exists(path.join(__dirname+'/ImageImport'),exists=>{
+               if(!exists)
+               {
+                 fs.mkdir(path.join(__dirname+'/ImageImport'),err=>{
+                   if(err)
+                   {
+                     res.status(404).json({message:"Folder creation failed"});
+                   }
+                });
+               }
+               cb(null,'ImageImport');
+             });
      },
      filename:(req,file,cb)=>{
-          cb(null,new Date().toISOString()+'-'+file.originalname);
+          // cb(null,new Date().toISOString()+'-'+file.originalname);
+          cb(null,new Date().toISOString().replace(/:/g, '-') +'-'+file.originalname);
      }
 });
 
@@ -67,7 +81,9 @@ app.use((error,req,res,next)=>{
 
 mongoose.connect(MONGODB_URI)
 .then(result => {
-     const server = app.listen(process.env.PORT || 8080 );
+     const server = app.listen(
+          process.env.PORT || 
+          8080 );
      const io = require('./socket').init(server);
      io.on('connection', socket => {
      });

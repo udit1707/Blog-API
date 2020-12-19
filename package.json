@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "rest_api",
   "main": "app.js",
-
-  "engines":{
-    "node":"12.16.1"
+  "engines": {
+    "node": "12.16.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -16,9 +15,12 @@
   "author": "Udit Singh",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.813.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
+    "dotenv": "^8.2.0",
+    "dropbox-v2-api": "^2.4.32",
     "express": "^4.17.1",
     "express-validator": "^6.4.0",
     "helmet": "^3.22.0",

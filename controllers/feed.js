@@ -1,11 +1,22 @@
 const fs = require('fs');
 const path = require('path');
-
+require('dotenv').config();
+const AWS = require('aws-sdk');
+AWS.config.update({region: process.env.REGION});
 const { validationResult } = require('express-validator/check');
 
 const io = require('../socket');
 const Post = require('../models/post');
 const User = require('../models/user');
+const ID = process.env.AWS_ID;
+const SECRET = process.env.AWS_KEY;
+const BUCKET_NAME = process.env.BUCKET_NAME;
+const s3 = new AWS.S3({
+  apiVersion: '2006-03-01',
+  accessKeyId: ID,
+  secretAccessKey: SECRET
+});
+
 
 exports.getPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -32,6 +43,7 @@ exports.getPosts = async (req, res, next) => {
 };
 
 exports.createPost = async (req, res, next) => {
+  console.log("ENDPOINT HIT");
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const error = new Error('Validation failed, entered data is incorrect.');
@@ -43,9 +55,30 @@ exports.createPost = async (req, res, next) => {
     error.statusCode = 422;
     throw error;
   }
-  const imageUrl = req.file.path;
+  const filePath = path.join(__dirname, '..', req.file.path);
+  const imgContent = fs.createReadStream(filePath);
+  const params = {
+    Bucket: BUCKET_NAME,Key: req.body.title, // File name you want to save as in S3
+    Body: imgContent
+  };
+  let postAWS;
+  try{
+    const posts=await Post.find({'title':req.body.title});
+    if(posts.length>0)
+    {
+      const error=new Error("Title Exits!")
+      throw error;
+    }
+    postAWS=await s3.upload(params).promise();
+  }
+  catch(err)
+  {
+    throw err;
+  }
+  //console.log(postAWS);
   const title = req.body.title;
   const content = req.body.content;
+  const imageUrl = postAWS.Location;
   const post = new Post({
     title: title,
     content: content,
@@ -61,6 +94,7 @@ exports.createPost = async (req, res, next) => {
       action: 'create',
       post: { ...post._doc, creator: { _id: req.userId, name: user.name } }
     });
+    clearImage(req.file.path);
     res.status(201).json({
       message: 'Post created successfully!',
       post: post,
@@ -83,7 +117,9 @@ exports.getPost = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    res.status(200).json({ message: 'Post fetched.', post: post });
+    const creator=await User.findById(post.creator);
+    // console.log(post);
+    res.status(200).json({ message: 'Post fetched.', post: post,author:creator.name});
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -103,14 +139,6 @@ exports.updatePost = async (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
   let imageUrl = req.body.image;
-  if (req.file) {
-    imageUrl = req.file.path;
-  }
-  if (!imageUrl) {
-    const error = new Error('No file picked.');
-    error.statusCode = 422;
-    throw error;
-  }
   try {
     const post = await Post.findById(postId).populate('creator');
     if (!post) {
@@ -123,9 +151,49 @@ exports.updatePost = async (req, res, next) => {
       error.statusCode = 403;
       throw error;
     }
-    if (imageUrl !== post.imageUrl) {
-      clearImage(post.imageUrl);
+    if (req.file) 
+    {
+      //Deleting previous s3 bucket image
+
+      try{
+        const exist = await s3.headObject({Bucket:BUCKET_NAME,Key: post.title}).promise().then(()=>true,err=>{
+          if(err.code==='NotFound'){return false;}throw err;
+        });
+        if(exist)
+        {const del=await s3.deleteObject({   Bucket: BUCKET_NAME,Key: post.title }).promise();}
+      }
+      catch(err){throw err;}
+
+      //uploading latest s3 bucket image
+      const filePath = path.join(__dirname, '..', req.file.path);
+      const imgContent = fs.createReadStream(filePath);
+      const params = {
+      Bucket: BUCKET_NAME,Key: req.body.title, // File name you want to save as in S3
+      Body: imgContent
+      };
+      let postAWS;
+      try{
+      const posts=await Post.find({'title':req.body.title});
+      if(posts.length>1)
+      {
+        const error=new Error("Title Exits!")
+        throw error;
+      }
+      postAWS=await s3.upload(params).promise();
+      }
+      catch(err)
+      {
+        throw err;
+      }
+      imageUrl = postAWS.Location;
+      clearImage(req.file.path);
     }
+    if (!imageUrl) {
+      const error = new Error('No file picked.');
+      error.statusCode = 422;
+      throw error;
+    }    
+    // console.log(imageUrl);
     post.title = title;
     post.imageUrl = imageUrl;
     post.content = content;
@@ -156,7 +224,14 @@ exports.deletePost = async (req, res, next) => {
       throw error;
     }
     // Check logged in user
-    clearImage(post.imageUrl);
+    const params = {   Bucket: BUCKET_NAME,Key: post.title };
+    try{
+    const del=await s3.deleteObject(params).promise(); 
+    }
+    catch(err)
+    {
+      throw err;
+    } 
     await Post.findByIdAndRemove(postId);
 
     const user = await User.findById(req.userId);
