@@ -4,6 +4,7 @@ This is a Blog Website which is robust enough to allow its bloggers to create/ed
 
 **TechStack**- MERN
 **Frontend Deployment**- Firebase
+**Cloud Solution**- AWS
 ## Walkthrough
 
 **Signup**
