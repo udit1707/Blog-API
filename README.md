@@ -4,6 +4,7 @@ This is a Blog Website which is robust enough to allow its bloggers to create/ed
 
 **TechStack**- MERN
 **Frontend Deployment**- Firebase
+**API LIVE**- Heroku
 **Cloud Solution**- AWS
 ## Walkthrough
 
@@ -24,10 +25,6 @@ This is a Blog Website which is robust enough to allow its bloggers to create/ed
 **SingleView**
 
 ![Single-View](https://user-images.githubusercontent.com/43987867/100772790-11627980-3426-11eb-8b82-8b050cd97087.png)
-
-
-Note*- Old visitors may find their image uploads to be lost after a period of time due to the filesystem of Heroku.
-This can be handled using AWS's S3 storage.
 
 # Thank You!
 
