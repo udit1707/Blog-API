@@ -5,7 +5,7 @@ This is a Blog Website which is robust enough to allow its bloggers to create/ed
 **TechStack**- MERN
 **Frontend Deployment**- Firebase
 **API LIVE**- Heroku
-**Cloud Solution**- AWS
+**Cloud Solution**- AWS' Simple Storage Service
 ## Walkthrough
 
 **Signup**
