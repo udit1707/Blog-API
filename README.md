@@ -18,13 +18,13 @@ This is a Blog Website which is robust enough to allow its bloggers to create/ed
 
 **FeedView**
 
-![Feed-1](https://user-images.githubusercontent.com/43987867/100772679-ee37ca00-3425-11eb-8f6f-5ff6e44259e9.png)
+![Feed-1](https://user-images.githubusercontent.com/43987867/102714932-0c436c80-42f8-11eb-96f5-0f5147cbc346.png)
 
-![Feed-2](https://user-images.githubusercontent.com/43987867/100772681-ef68f700-3425-11eb-80c0-578ba7f49447.png)
+![Feed-2](https://user-images.githubusercontent.com/43987867/102714957-29783b00-42f8-11eb-88fc-b050438f70dc.png)
 
 **SingleView**
 
-![Single-View](https://user-images.githubusercontent.com/43987867/100772790-11627980-3426-11eb-8b82-8b050cd97087.png)
+![Single-View](https://user-images.githubusercontent.com/43987867/102714969-3c8b0b00-42f8-11eb-9567-a8cb1f212a63.png)
 
 # Thank You!
 
